@@ -7,7 +7,7 @@ export const SITE = {
   title: "Blog@mpanin.me",
   // ogImage: "astropaper-og.jpg",
   lightAndDarkMode: true,
-  postPerPage: 3,
+  postPerPage: 10,
 };
 
 export const LOGO_IMAGE = {
@@ -20,7 +20,7 @@ export const LOGO_IMAGE = {
 export const SOCIALS: SocialObjects = [
   {
     name: "Github",
-    href: "https://github.com/nxrv",
+    href: "https://github.com/nxrvl",
     linkTitle: ` ${SITE.title} on Github`,
     active: true,
   },
