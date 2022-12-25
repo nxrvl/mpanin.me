@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY package*.json ./
 
+RUN npm install -g npm@9.2.0
 RUN npm install
 
 # Bundle app source
@@ -17,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # production environment
-FROM nginx:1.23.3-alpine-slim
+FROM nginx:1.23.3-alpine-slim as production
 COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
 #COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
