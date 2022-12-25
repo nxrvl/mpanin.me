@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # production environment
-FROM nginx
+FROM nginx:1.23.3-alpine-slim
 COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
 #COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
