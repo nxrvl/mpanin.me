@@ -7,7 +7,6 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY package*.json ./
 
-RUN npm install --location=global npm@9.2.0
 RUN npm install
 
 # Bundle app source
