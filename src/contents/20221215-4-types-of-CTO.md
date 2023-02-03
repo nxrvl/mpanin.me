@@ -16,6 +16,8 @@ description:
 
 # 4 types of CTO
 
+write an article where described 4 types of cto:
+
 1. A developer with CTO title
 2. Team lead with title CTO
 3. A good manager who just implemeting thing envisioned by the others
