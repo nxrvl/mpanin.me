@@ -6,10 +6,10 @@ slug: colima-and-mounting-volumes
 featured: true
 draft: false
 tags:
-- devops
-- colima
-  ogImage: ""
-  description:
+  - devops
+  - colima
+ogImage: ""
+description:
 ---
 
 # Colima and mounting volumes on MacOS
