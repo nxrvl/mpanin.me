@@ -3,7 +3,7 @@ author: Maksim Panin
 datetime: 2023-02-15 12:00:00
 title: Colima and mounting volumes on MacOS
 slug: colima-and-mounting-volumes
-featured: true
+featured: false
 draft: false
 tags:
   - devops
