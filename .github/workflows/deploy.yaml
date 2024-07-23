@@ -20,7 +20,7 @@ jobs:
       - name: Login to private Docker registry
         uses: docker/login-action@v2
         with:
-          registry: your-registry.com
+          registry: docker.mpanin.me
           username: ${{ secrets.REGISTRY_LOGIN }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
