@@ -45,12 +45,15 @@ jobs:
         env:
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
           REPO_NAME: ${{ github.repository }}
+          REGISTRY_LOGIN: ${{ secrets.REGISTRY_LOGIN }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.SSH_RSA }}
-          envs: IMAGE_TAG,REPO_NAME
+          envs: IMAGE_TAG, REPO_NAME, REGISTRY_LOGIN, REGISTRY_PASSWORD
           script: |
+            echo $REGISTRY_PASSWORD | docker login docker.mpanin.me -u $REGISTRY_LOGIN --password-stdin
             docker pull docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
             docker stop ${REPO_NAME} || true
             docker rm ${REPO_NAME} || true
