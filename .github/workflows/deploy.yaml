@@ -1,38 +1,91 @@
-name: Build, Push, and Deploy
+name: Build, Push, and Deploy Mpanin.me
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-push-deploy:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.version.outputs.IMAGE_TAG }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to private Docker registry
-        uses: docker/login-action@v2
-        with:
-          registry: your-registry.com
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Generate image version tag
+        id: version
+        run: |
+          VERSION=$(date +%Y%m%d)-${GITHUB_SHA::8}
+          echo "IMAGE_TAG=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: true
-          tags: your-registry.com/your-image:${{ github.sha }}
+          push: false
+          tags: |
+            docker.mpanin.me/${{ github.repository }}:${{ steps.version.outputs.IMAGE_TAG }}
+            docker.mpanin.me/${{ github.repository }}:latest
+          outputs: type=docker,dest=/tmp/image.tar
 
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp/image.tar
+
+  push:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+
+      - name: Login to private Docker registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.mpanin.me
+          username: ${{ secrets.REGISTRY_LOGIN }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push Docker image
+        run: |
+          docker push docker.mpanin.me/${{ github.repository }}:${{ needs.build.outputs.image_tag }}
+          docker push docker.mpanin.me/${{ github.repository }}:latest
+
+  deploy:
+    needs: [build, push]
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Deploy to server
         uses: appleboy/ssh-action@master
+        env:
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+          REPO_NAME: ${{ github.repository }}
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_RSA }}
+          envs: IMAGE_TAG,REPO_NAME
           script: |
-            docker pull your-registry.com/your-image:${{ github.sha }}
-            docker stop your-container-name || true
-            docker rm your-container-name || true
-            docker run -d --name your-container-name your-registry.com/your-image:${{ github.sha }}
+            docker pull docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
+            docker stop ${REPO_NAME} || true
+            docker rm ${REPO_NAME} || true
+            docker run -d \
+              --name ${REPO_NAME} \
+              --network traefik \
+              --label "traefik.enable=true" \
+              --label "traefik.http.routers.${REPO_NAME}.rule=Host(\`mpanin.me\`)" \
+              --label "traefik.http.routers.${REPO_NAME}.entrypoints=websecure" \
+              --label "traefik.http.routers.${REPO_NAME}.tls.certresolver=myresolver" \
+              docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
