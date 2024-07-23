@@ -30,15 +30,19 @@ jobs:
           context: .
           push: true
           tags: |
-            docker.mpanin.me/${REPO_NAME}:${{ steps.version.outputs.IMAGE_TAG }}
-            docker.mpanin.me/${REPO_NAME}:latest
+            docker.mpanin.me/${{ github.repository }}:${{ steps.version.outputs.IMAGE_TAG }}
+            docker.mpanin.me/${{ github.repository }}:latest
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
+        env:
+          IMAGE_TAG: ${{ steps.version.outputs.IMAGE_TAG }}
+          REPO_NAME: ${{ github.repository }}
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.SSH_RSA }}
+          envs: IMAGE_TAG,REPO_NAME
           script: |
             docker pull docker.mpanin.me/${REPO_NAME}:${{ steps.version.outputs.IMAGE_TAG }}
             docker stop ${REPO_NAME} || true
