@@ -1,0 +1,53 @@
+name: Build, Push, and Deploy Mpanin.me
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate image version tag
+        id: version
+        run: |
+          VERSION=$(date +%Y%m%d)-${GITHUB_SHA::8}
+          echo "IMAGE_TAG=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Login to private Docker registry
+        uses: docker/login-action@v2
+        with:
+          registry: your-registry.com
+          username: ${{ secrets.REGISTRY_LOGIN }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            docker.mpanin.me/${REPO_NAME}:${{ steps.version.outputs.IMAGE_TAG }}
+            docker.mpanin.me/${REPO_NAME}:latest
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_RSA }}
+          script: |
+            docker pull docker.mpanin.me/${REPO_NAME}:${{ steps.version.outputs.IMAGE_TAG }}
+            docker stop ${REPO_NAME} || true
+            docker rm ${REPO_NAME} || true
+            docker run -d \
+              --name ${REPO_NAME} \
+              --network traefik \
+              --label "traefik.enable=true" \
+              --label "traefik.http.routers.${REPO_NAME}.rule=Host(\`mpanin.me\`)" \
+              --label "traefik.http.routers.${REPO_NAME}.entrypoints=websecure" \
+              --label "traefik.http.routers.${REPO_NAME}.tls.certresolver=myresolver" \
+              docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
