@@ -1,49 +1,32 @@
-name: Build, Push, and Deploy Mpanin.me
+name: Deploy to Server
 
 on:
-  push:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["Build and Push Docker Image"]
+    types:
+      - completed
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.version.outputs.IMAGE_TAG }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Generate image version tag
-        id: version
-        run: |
-          VERSION=$(date +%Y%m%d)-${GITHUB_SHA::8}
-          echo "IMAGE_TAG=${VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Login to private Docker registry
-        uses: docker/login-action@v3
-        with:
-          registry: docker.mpanin.me
-          username: ${{ secrets.REGISTRY_LOGIN }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            docker.mpanin.me/${{ github.repository }}:${{ steps.version.outputs.IMAGE_TAG }}
-            docker.mpanin.me/${{ github.repository }}:latest
-
   deploy:
-    needs: build-and-push
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      - name: Download workflow artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build-and-push.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          name: image-tag
+
+      - name: Read image tag
+        id: image-tag
+        run: echo "IMAGE_TAG=$(cat IMAGE_TAG)" >> $GITHUB_OUTPUT
+
       - name: Deploy to server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         env:
-          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          IMAGE_TAG: ${{ steps.image-tag.outputs.IMAGE_TAG }}
           REPO_NAME: ${{ github.repository }}
           REGISTRY_LOGIN: ${{ secrets.REGISTRY_LOGIN }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
@@ -51,7 +34,7 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.SSH_RSA }}
-          envs: IMAGE_TAG, REPO_NAME, REGISTRY_LOGIN, REGISTRY_PASSWORD
+          envs: IMAGE_TAG,REPO_NAME,REGISTRY_LOGIN,REGISTRY_PASSWORD
           script: |
             echo $REGISTRY_PASSWORD | docker login docker.mpanin.me -u $REGISTRY_LOGIN --password-stdin
             docker pull docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
@@ -65,3 +48,4 @@ jobs:
               --label "traefik.http.routers.${REPO_NAME}.entrypoints=websecure" \
               --label "traefik.http.routers.${REPO_NAME}.tls.certresolver=myresolver" \
               docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
+            docker logout docker.mpanin.me
