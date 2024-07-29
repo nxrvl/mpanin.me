@@ -15,7 +15,7 @@ jobs:
       - name: Download workflow artifact
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: build-and-push.yml
+          workflow: build.yaml
           run_id: ${{ github.event.workflow_run.id }}
           name: image-tag
 
