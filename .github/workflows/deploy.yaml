@@ -15,13 +15,14 @@ jobs:
       - name: Download workflow artifact
         uses: dawidd6/action-download-artifact@v2
         with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yaml
           run_id: ${{ github.event.workflow_run.id }}
           name: image-tag
 
       - name: Read image tag
         id: image-tag
-        run: echo "IMAGE_TAG=$(cat IMAGE_TAG)" >> $GITHUB_OUTPUT
+        run: echo "IMAGE_TAG=$(cat image-tag.txt)" >> $GITHUB_OUTPUT
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master

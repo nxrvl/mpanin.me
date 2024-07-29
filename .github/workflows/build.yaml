@@ -7,8 +7,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.version.outputs.IMAGE_TAG }}
 
     steps:
       - uses: actions/checkout@v4
@@ -35,5 +33,11 @@ jobs:
             docker.mpanin.me/${{ github.repository }}:${{ steps.version.outputs.IMAGE_TAG }}
             docker.mpanin.me/${{ github.repository }}:latest
 
-      - name: Output image tag
-        run: echo "IMAGE_TAG=${{ steps.version.outputs.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+      - name: Create artifact with image tag
+        run: echo "${{ steps.version.outputs.IMAGE_TAG }}" > image-tag.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-tag
+          path: image-tag.txt
