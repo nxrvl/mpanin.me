@@ -30,8 +30,8 @@ jobs:
           context: .
           push: true
           tags: |
-            docker.mpanin.me/${{ github.repository }}:${{ steps.version.outputs.IMAGE_TAG }}
-            docker.mpanin.me/${{ github.repository }}:latest
+            docker.mpanin.me/mpanin:${{ steps.version.outputs.IMAGE_TAG }}
+            docker.mpanin.me/mpanin:latest
 
       - name: Create artifact with image tag
         run: echo "${{ steps.version.outputs.IMAGE_TAG }}" > image-tag.txt
