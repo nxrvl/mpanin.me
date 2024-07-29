@@ -37,11 +37,12 @@ jobs:
           key: ${{ secrets.SSH_RSA }}
           envs: IMAGE_TAG,REPO_NAME,REGISTRY_LOGIN,REGISTRY_PASSWORD
           script: |
+            set -e  # Exit immediately if a command exits with a non-zero status
             echo $REGISTRY_PASSWORD | docker login docker.mpanin.me -u $REGISTRY_LOGIN --password-stdin
             docker pull docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
             docker stop ${REPO_NAME} || true
             docker rm ${REPO_NAME} || true
-            docker run -d \
+            if ! docker run -d \
               --name ${REPO_NAME} \
               --network traefik \
               --label "traefik.enable=true" \
@@ -49,4 +50,14 @@ jobs:
               --label "traefik.http.routers.${REPO_NAME}.entrypoints=websecure" \
               --label "traefik.http.routers.${REPO_NAME}.tls.certresolver=myresolver" \
               docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
+            then
+              echo "Failed to start the container"
+              exit 1
+            fi
             docker logout docker.mpanin.me
+            
+      - name: Check deployment status
+        if: failure()
+        run: |
+          echo "Deployment failed. Please check the logs for more information."
+          exit 1
