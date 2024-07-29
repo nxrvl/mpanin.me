@@ -43,7 +43,7 @@ jobs:
             docker stop ${REPO_NAME} || true
             docker rm ${REPO_NAME} || true
             if ! docker run -d \
-              --name ${REPO_NAME} \
+              --name mpanin.me \
               --network traefik \
               --label "traefik.enable=true" \
               --label "traefik.http.routers.${REPO_NAME}.rule=Host(\`mpanin.me\`)" \
