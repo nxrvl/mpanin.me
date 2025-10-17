@@ -1,0 +1,76 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Main from "@layouts/Main.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import { SITE } from "@config";
+
+const projects = await getCollection("projects");
+const sortedProjects = projects.sort((a, b) => {
+  const orderA = a.data.order ?? 999;
+  const orderB = b.data.order ?? 999;
+  return orderA - orderB;
+});
+---
+
+<Layout
+  title={`Projects | ${SITE.title}`}
+  description="A showcase of my projects and work"
+>
+  <Header activeNav="projects" />
+  <Main pageTitle="Projects" pageDesc="Things I've built and contributed to">
+    <section>
+      {sortedProjects.length > 0 ? (
+        <ul>
+          {sortedProjects.map((project) => (
+            <li class="mb-6 border border-skin-line rounded-lg p-6">
+              <h3 class="text-xl font-medium mb-2">{project.data.title}</h3>
+              <p class="mb-4">{project.data.description}</p>
+              <div class="flex gap-4">
+                {project.data.websiteUrl && (
+                  <a
+                    href={project.data.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center text-sm underline hover:text-skin-accent"
+                  >
+                    Visit Site
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                )}
+                {project.data.githubUrl && (
+                  <a
+                    href={project.data.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center text-sm underline hover:text-skin-accent"
+                  >
+                    View Source
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+              {project.data.tags.length > 0 && (
+                <div class="mt-4">
+                  {project.data.tags.map((tag) => (
+                    <span class="inline-block bg-skin-card text-skin-base text-xs px-2 py-1 rounded mr-2">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-center opacity-70">No projects yet. Check back later!</p>
+      )}
+    </section>
+  </Main>
+  <Footer />
+</Layout>

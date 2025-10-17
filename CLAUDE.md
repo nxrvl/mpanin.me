@@ -47,7 +47,17 @@ npm run cz       # Commit with conventional commits (commitizen)
 - Docker deployment support
 
 ## Working with Content
-- Blog posts require frontmatter: title, pubDatetime, tags
+
+### Blog Posts
+- Blog posts go in `/src/content/blog/`
+- Required frontmatter: title, pubDatetime, tags
 - Optional: description, draft, featured
 - Images go in `public/images/`
 - Use slugified filenames for posts
+
+### Projects
+- Projects go in `/src/content/projects/`
+- Required frontmatter: title, description
+- Optional: websiteUrl, githubUrl, featured, order, tags
+- Projects are sorted by `order` field (lower numbers first)
+- Featured projects appear in a separate section
