@@ -1,0 +1,66 @@
+# Initial server setup for mpanin.me
+# Run: spot -p deploy/spot.yml -t prod
+user: root
+targets:
+  prod:
+    hosts: [{host: "mpanin.me"}]
+
+tasks:
+  - name: install docker
+    commands:
+      - name: check if docker is installed
+        script: command -v docker && echo "docker already installed" && exit 0 || true
+      - name: install docker engine
+        script: curl -fsSL https://get.docker.com | sh
+        cond: "! command -v docker"
+      - name: enable and start docker
+        script: systemctl enable --now docker
+        cond: "! systemctl is-active docker"
+      - name: install compose plugin
+        script: apt-get update && apt-get install -y docker-compose-plugin
+        cond: "! docker compose version"
+
+  - name: cleanup old infrastructure
+    commands:
+      - name: stop old traefik
+        script: docker stop traefik 2>/dev/null && docker rm traefik 2>/dev/null || true
+      - name: stop old app container
+        script: docker stop mpanin 2>/dev/null && docker rm mpanin 2>/dev/null || true
+      - name: remove old traefik network
+        script: docker network rm traefik 2>/dev/null || true
+
+  - name: deploy stack
+    commands:
+      - name: create deployment directory
+        script: mkdir -p /opt/mpanin.me
+
+      - name: copy docker-compose
+        copy: {src: "deploy/docker-compose.yml", dst: "/opt/mpanin.me/docker-compose.yml"}
+      - name: copy dockerfile
+        copy: {src: "deploy/Dockerfile.site", dst: "/opt/mpanin.me/Dockerfile.site"}
+      - name: copy nginx config
+        copy: {src: "deploy/nginx.conf", dst: "/opt/mpanin.me/nginx.conf"}
+
+      - name: build initial placeholder image
+        script: |
+          cd /opt/mpanin.me
+          mkdir -p dist
+          echo "<html><body><h1>mpanin.me — deploying...</h1></body></html>" > dist/index.html
+          docker compose build app
+
+      - name: start reproxy and app
+        script: |
+          cd /opt/mpanin.me
+          docker compose up -d
+
+      - name: wait for reproxy to be healthy
+        wait: {cmd: "docker inspect --format='{{.State.Running}}' reproxy | grep -q true", timeout: "30s", interval: "3s"}
+
+      - name: show status
+        script: |
+          cd /opt/mpanin.me
+          docker compose ps
+          echo ""
+          echo "=== Setup complete ==="
+          echo "Reproxy will obtain SSL certificates shortly."
+          echo "Next: push a tag (git tag v1.0.0 && git push origin v1.0.0) to deploy the real site."

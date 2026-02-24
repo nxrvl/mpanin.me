@@ -1,0 +1,47 @@
+services:
+  reproxy:
+    image: umputun/reproxy:latest
+    container_name: reproxy
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+      - "443:8443"
+    environment:
+      - LISTEN=0.0.0.0:8080
+      - SSL_TYPE=auto
+      - SSL_FQDN=mpanin.me,www.mpanin.me
+      - SSL_ACME_LOCATION=/srv/var/acme
+      - DOCKER_ENABLED=true
+      - DOCKER_AUTO=true
+      - LOGGER_ENABLED=true
+      - LOGGER_FILE=/srv/var/logs/access.log
+      - LOGGER_MAX_SIZE=50M
+      - LOGGER_MAX_BACKUPS=3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - acme-data:/srv/var/acme
+      - reproxy-logs:/srv/var/logs
+    networks:
+      - web
+
+  app:
+    container_name: mpanin
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.site
+    labels:
+      - "reproxy.server=mpanin.me,www.mpanin.me"
+      - "reproxy.route=^/(.*)"
+      - "reproxy.dest=/$$1"
+      - "reproxy.port=80"
+    networks:
+      - web
+
+volumes:
+  acme-data:
+  reproxy-logs:
+
+networks:
+  web:
+    name: web

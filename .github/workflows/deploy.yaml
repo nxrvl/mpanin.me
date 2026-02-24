@@ -1,64 +1,70 @@
-name: Deploy to Server
+name: Build and Deploy
 
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Image"]
-    types:
-      - completed
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     steps:
-      - name: Download workflow artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: build.yaml
-          run_id: ${{ github.event.workflow_run.id }}
-          name: image-tag
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Read image tag
-        id: image-tag
-        run: echo "IMAGE_TAG=$(cat image-tag.txt)" >> $GITHUB_OUTPUT
-
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        env:
-          IMAGE_TAG: ${{ steps.image-tag.outputs.IMAGE_TAG }}
-          REPO_NAME: mpanin
-          REGISTRY_LOGIN: ${{ secrets.REGISTRY_LOGIN }}
-          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USERNAME }}
-          key: ${{ secrets.SSH_RSA }}
-          envs: IMAGE_TAG,REPO_NAME,REGISTRY_LOGIN,REGISTRY_PASSWORD
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: deploy/dist/
+
+      - name: Deploy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: mpanin.me
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "deploy/docker-compose.yml,deploy/Dockerfile.site,deploy/nginx.conf,deploy/dist/"
+          target: /opt/mpanin.me/
+          strip_components: 1
+          overwrite: true
+
+      - name: Rebuild and restart app container
+        uses: appleboy/ssh-action@v1
+        with:
+          host: mpanin.me
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e  # Exit immediately if a command exits with a non-zero status
-            echo $REGISTRY_PASSWORD | docker login docker.mpanin.me -u $REGISTRY_LOGIN --password-stdin
-            docker pull docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
-            docker stop ${REPO_NAME} || true
-            docker rm ${REPO_NAME} || true
-            if ! docker run -d \
-              --name ${REPO_NAME} \
-              --network traefik \
-              --label "traefik.enable=true" \
-              --label "traefik.http.routers.${REPO_NAME}.rule=Host(\`mpanin.me\`)" \
-              --label "traefik.http.routers.${REPO_NAME}.entrypoints=web,websecure" \
-              --label "traefik.http.routers.${REPO_NAME}.tls.certresolver=myresolver" \
-              --label "traefik.http.services.mpanin-static.loadbalancer.server.port=80" \
-              docker.mpanin.me/${REPO_NAME}:${IMAGE_TAG}
-            then
-              echo "Failed to start the container"
-              exit 1
-            fi
-            docker logout docker.mpanin.me
-            
-      - name: Check deployment status
-        if: failure()
-        run: |
-          echo "Deployment failed. Please check the logs for more information."
-          exit 1
+            set -e
+            cd /opt/mpanin.me
+            docker compose build app
+            docker compose up -d --no-deps app
+            docker image prune -f
+            echo "Deploy complete: ${{ github.ref_name }}"

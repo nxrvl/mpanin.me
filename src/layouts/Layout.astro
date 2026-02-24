@@ -1,7 +1,7 @@
 ---
 import { LOCALE, SITE } from "@config";
 import "@styles/base.css";
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
 const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
 
@@ -103,6 +103,7 @@ const structuredData = {
 
     <!-- Google JSON-LD Structured data -->
     <script
+      is:inline
       type="application/ld+json"
       set:html={JSON.stringify(structuredData)}
     />
@@ -129,12 +130,12 @@ const structuredData = {
       )
     }
 
-    <ViewTransitions />
+    <ClientRouter />
 
     <script is:inline src="/toggle-theme.js"></script>
 
     <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
+    <script is:inline type="text/javascript">
       /* global ym */
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -148,11 +149,11 @@ const structuredData = {
             return;
           }
         }
-        (k = e.createElement(t)),
+        ((k = e.createElement(t)),
           (a = e.getElementsByTagName(t)[0]),
           (k.async = 1),
           (k.src = r),
-          a.parentNode.insertBefore(k, a);
+          a.parentNode.insertBefore(k, a));
       })(
         window,
         document,
@@ -168,13 +169,13 @@ const structuredData = {
       });
     </script>
     <noscript
-    ><div>
-      <img
-        src="https://mc.yandex.ru/watch/91840855"
-        style="position:absolute; left:-9999px;"
-        alt=""
-      />
-    </div>
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/91840855"
+          style="position:absolute; left:-9999px;"
+          alt=""
+        />
+      </div>
     </noscript>
     <!-- /Yandex.Metrika counter -->
   </head>
