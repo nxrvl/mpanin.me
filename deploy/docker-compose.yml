@@ -7,10 +7,11 @@ services:
       - "80:8080"
       - "443:8443"
     environment:
-      - LISTEN=0.0.0.0:8080
+      - LISTEN=0.0.0.0:8443
       - SSL_TYPE=auto
       - SSL_FQDN=mpanin.me,www.mpanin.me
       - SSL_ACME_LOCATION=/srv/var/acme
+      - DOCKER_API_VERSION=1.44
       - DOCKER_ENABLED=true
       - DOCKER_AUTO=true
       - LOGGER_ENABLED=true
@@ -35,6 +36,7 @@ services:
       - "reproxy.route=^/(.*)"
       - "reproxy.dest=/$$1"
       - "reproxy.port=80"
+      - "reproxy.keep-host=true"
     networks:
       - web
 
