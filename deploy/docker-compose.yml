@@ -9,7 +9,7 @@ services:
     environment:
       - LISTEN=0.0.0.0:8443
       - SSL_TYPE=auto
-      - SSL_FQDN=mpanin.me,www.mpanin.me
+      - SSL_FQDN=mpanin.me,www.mpanin.me,nxpose.mpanin.me,zuxi.mpanin.me,rlightning.mpanin.me
       - SSL_ACME_LOCATION=/srv/var/acme
       - DOCKER_API_VERSION=1.44
       - DOCKER_ENABLED=true
