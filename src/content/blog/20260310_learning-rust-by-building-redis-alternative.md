@@ -1,6 +1,6 @@
 ---
 author: Maksim Panin
-pubDatetime: 2026-03-10 22:59:00
+pubDatetime: 2026-03-10 10:00:00
 title: "Learning Rust by Building a Redis Alternative with AI"
 slug: learning-rust-by-building-redis-alternative
 featured: true
