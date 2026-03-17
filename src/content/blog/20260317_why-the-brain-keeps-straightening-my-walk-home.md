@@ -30,7 +30,9 @@ And why does this become even more obvious on the way home?
 
 It is tempting to assume that we choose routes rationally. The shortest one. Or the fastest one. Or maybe the prettiest one. But that does not seem to be how everyday navigation actually works.
 
-Research on pedestrian route choice suggests that people rarely optimize perfectly. Instead, we rely on simple heuristics — mental shortcuts that reduce effort. We often prefer routes that point more directly toward the destination, require fewer decisions, or allow us to continue the current movement without interruption. In other words, the brain is not necessarily looking for the globally best path. It is often looking for the path that is easiest to maintain. [oai_citation:0‡Royal Society Publishing](https://royalsocietypublishing.org/rsif/article/19/189/20220061/90076/The-principles-of-pedestrian-route-choiceThe?utm_source=chatgpt.com)
+Research on pedestrian route choice suggests that people rarely optimize perfectly. Instead, we rely on simple heuristics — mental shortcuts that reduce effort. We often prefer routes that point more directly toward the destination, require fewer decisions, or allow us to continue the current movement without interruption.
+
+In other words, the brain is not necessarily looking for the globally best path. It is often looking for the path that is easiest to maintain.
 
 That idea explains a lot.
 
@@ -40,7 +42,9 @@ A winding path through a park may be only slightly longer in distance, but it ma
 
 Another interesting idea from cognitive research is that navigation often happens incrementally.
 
-We like to imagine that before moving, we internally calculate the entire route, compare alternatives, and select the best one. But in practice, people frequently navigate step by step. At each moment, we choose the next segment that appears to move us closer to the goal. This is much closer to local steering than to full strategic planning. [oai_citation:1‡ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0010027711001521?utm_source=chatgpt.com)
+We like to imagine that before moving, we internally calculate the entire route, compare alternatives, and select the best one. But in practice, people frequently navigate step by step. At each moment, we choose the next segment that appears to move us closer to the goal.
+
+This is much closer to local steering than to full strategic planning.
 
 This matters because a route can be globally nicer and still lose locally.
 
@@ -52,11 +56,9 @@ So what looks from the outside like a small scenic choice may, from the inside, 
 
 There is also a more subtle point here: humans do not seem to evaluate routes by meters alone.
 
-A route has many hidden costs and benefits. Number of turns. Visual clarity. Familiarity. Noise. Shade. Traffic lights. Surface quality. Stress. Beauty. Safety. The route that looks “longer” in map terms may feel easier in experience. The route that is objectively shorter may feel heavier if it is noisy, fragmented, or mentally cluttered.
+A route has many hidden costs and benefits. Number of turns. Visual clarity. Familiarity. Noise. Traffic lights. Surface quality. Stress. Beauty. Safety. The route that looks “longer” in map terms may feel easier in experience. The route that is objectively shorter may feel heavier if it is noisy, fragmented, or mentally cluttered.
 
-Some research frames this as a broader cost function: pedestrians trade off distance with simplicity, comfort, and environmental quality. Large-scale GPS studies show that route length matters a lot, but it is not the only variable. The number of turns also plays a role, and so do contextual factors that change how costly a path feels. [oai_citation:2‡Royal Society Publishing](https://royalsocietypublishing.org/rsif/article/19/189/20220061/90076/The-principles-of-pedestrian-route-choiceThe?utm_source=chatgpt.com)
-
-This is probably why the park route interests me so much.
+That is probably why the park route interests me so much.
 
 It is not just “a longer route.” It is a route with different cognitive and emotional properties. It may be slower in one sense and better in another. But the brain does not always reward that immediately. Sometimes it defaults to closure, efficiency, and low decision load.
 
@@ -64,7 +66,7 @@ It is not just “a longer route.” It is a route with different cognitive and 
 
 What makes this even more interesting is that the same path can feel different depending on direction.
 
-There is evidence that pedestrian route choice is often asymmetric: people do not necessarily take the same route out and back, even between the same two points. The return journey is not simply the original journey in reverse. [oai_citation:3‡ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S027249442300052X?utm_source=chatgpt.com)
+There is evidence that pedestrian route choice is often asymmetric: people do not necessarily take the same route out and back, even between the same two points. The return journey is not simply the original journey in reverse.
 
 That feels intuitively true.
 
@@ -102,6 +104,11 @@ Sometimes it is also a small experiment in how the mind moves through space.
 
 ## References
 
-- Tong, Y., & Bode, N. W. F. (2022). _The principles of pedestrian route choice_. _Journal of the Royal Society Interface_, 19(189). [oai_citation:4‡Royal Society Publishing](https://royalsocietypublishing.org/rsif/article/19/189/20220061/90076/The-principles-of-pedestrian-route-choiceThe?utm_source=chatgpt.com)
-- Hölscher, C., Tenbrink, T., & Wiener, J. M. (2011). _Would You Follow Your Own Route Description? Cognitive Strategies in Urban Route Planning_. _Cognition_, 121(2), 228–247. [oai_citation:5‡ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0010027711001521?utm_source=chatgpt.com)
-- Montello, D. R., Davis, R. C., Johnson, M., & Chrastil, E. R. (2023). _The symmetry and asymmetry of pedestrian route choice_. _Journal of Environmental Psychology_, 87, 102004. [oai_citation:6‡ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S027249442300052X?utm_source=chatgpt.com)
+1. Tong, Y., & Bode, N. W. F. (2022). _The principles of pedestrian route choice_. Journal of the Royal Society Interface, 19(189), 20220061.  
+   DOI: https://doi.org/10.1098/rsif.2022.0061
+
+2. Hölscher, C., Tenbrink, T., & Wiener, J. M. (2011). _Would You Follow Your Own Route Description? Cognitive Strategies in Urban Route Planning_. Cognition, 121(2), 228–247.  
+   DOI: https://doi.org/10.1016/j.cognition.2011.06.005
+
+3. Montello, D. R., Davis, R. C., Johnson, M., & Chrastil, E. R. (2023). _The symmetry and asymmetry of pedestrian route choice_. Journal of Environmental Psychology, 87, 102004.  
+   DOI: https://doi.org/10.1016/j.jenvp.2023.102004
