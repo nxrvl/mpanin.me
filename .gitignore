@@ -36,3 +36,5 @@ pnpm-debug.log*
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+.playwright-mcp/
